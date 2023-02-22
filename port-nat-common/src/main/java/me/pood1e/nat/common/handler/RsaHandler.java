@@ -4,7 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import lombok.extern.slf4j.Slf4j;
-import me.pood1e.nat.common.util.RSAUtils;
+import me.pood1e.nat.common.util.RsaUtils;
 
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -13,32 +13,22 @@ import java.security.interfaces.RSAPublicKey;
  * @author pood1e
  */
 @Slf4j
-public class RSAHandler implements ChannelHandler {
+public class RsaHandler extends ChannelHandlerAdapter {
 
 	public final String INBOUND_AES_HANDLER = "INBOUND_RSA_HANDLER";
 	public final String OUTBOUND_AES_HANDLER = "OUTBOUND_RSA_HANDLER";
 	private final RSAPublicKey pubKey;
 	private final RSAPrivateKey priKey;
 
-	public RSAHandler(String pubKey, String priKey) throws Exception {
-		this.pubKey = RSAUtils.getPublicKey(pubKey);
-		this.priKey = RSAUtils.getPrivateKey(priKey);
+	public RsaHandler(String pubKey, String priKey) throws Exception {
+		this.pubKey = RsaUtils.getPublicKey(pubKey);
+		this.priKey = RsaUtils.getPrivateKey(priKey);
 	}
 
 	@Override
 	public void handlerAdded(ChannelHandlerContext ctx) {
-		ctx.pipeline().replace(this, INBOUND_AES_HANDLER, new RSAHandler.RSAInBoundHandler(priKey));
-		ctx.pipeline().addAfter(INBOUND_AES_HANDLER, OUTBOUND_AES_HANDLER, new RSAHandler.RSAOutBoundHandler(pubKey));
-	}
-
-	@Override
-	public void handlerRemoved(ChannelHandlerContext ctx) {
-
-	}
-
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		ctx.fireExceptionCaught(cause);
+		ctx.pipeline().replace(this, INBOUND_AES_HANDLER, new RsaHandler.RSAInBoundHandler(priKey));
+		ctx.pipeline().addAfter(INBOUND_AES_HANDLER, OUTBOUND_AES_HANDLER, new RsaHandler.RSAOutBoundHandler(pubKey));
 	}
 
 	private static final class RSAInBoundHandler extends SimpleChannelInboundHandler<ByteBuf> {
@@ -52,7 +42,7 @@ public class RSAHandler implements ChannelHandler {
 		protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
 			byte[] buffer = new byte[msg.readableBytes()];
 			msg.readBytes(buffer);
-			byte[] data = RSAUtils.decryptByPrivateKey(buffer, priKey);
+			byte[] data = RsaUtils.decryptByPrivateKey(buffer, priKey);
 			ctx.fireChannelRead(Unpooled.wrappedBuffer(data));
 		}
 
@@ -77,7 +67,7 @@ public class RSAHandler implements ChannelHandler {
 				byte[] buffer = new byte[buf.readableBytes()];
 				buf.readBytes(buffer);
 				buf.release();
-				byte[] data = RSAUtils.encryptByPublicKey(buffer, pubKey);
+				byte[] data = RsaUtils.encryptByPublicKey(buffer, pubKey);
 				super.write(ctx, Unpooled.wrappedBuffer(data), promise);
 			}
 		}

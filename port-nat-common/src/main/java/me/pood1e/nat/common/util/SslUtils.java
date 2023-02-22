@@ -51,7 +51,7 @@ public class SslUtils {
 
 	public static SslContext getServerSsl() {
 		try {
-			KeyPair keyPair = RSAUtils.getRsaKeypair();
+			KeyPair keyPair = RsaUtils.getRsaKeypair();
 			return SslContextBuilder.forServer(keyPair.getPrivate(), generate(keyPair))
 					.trustManager(InsecureTrustManagerFactory.INSTANCE)
 					.build();

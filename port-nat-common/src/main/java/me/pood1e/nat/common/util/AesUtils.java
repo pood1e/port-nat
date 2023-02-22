@@ -13,7 +13,7 @@ import java.security.SecureRandom;
 /**
  * @author pood1e
  */
-public class AESUtils {
+public class AesUtils {
 
 	private static final String ALGORITHM = "AES";
 	private static final String MODE = "AES/ECB/PKCS5Padding";

@@ -17,7 +17,7 @@ import java.security.spec.X509EncodedKeySpec;
 /**
  * @author pood1e
  */
-public class RSAUtils {
+public class RsaUtils {
 
 	private final static String ALGORITHM_RSA = "RSA";
 	private final static int MAX_DECRYPT_BLOCK = 256;
